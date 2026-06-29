@@ -1,8 +1,46 @@
 const root = document.documentElement;
-const currentScript = document.currentScript;
-const siteRoot = new URL(".", currentScript?.src || window.location.href);
+const siteRoot = "/";
 const storedTheme = localStorage.getItem("portfolio-theme");
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const navbarTemplate = `
+<nav class="navbar navbar-expand-lg fixed-top portfolio-nav">
+  <div class="container">
+    <a class="navbar-brand fw-black" href="${siteRoot}index.html#inicio">Miguel Vergara</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNav" aria-controls="mainNav" aria-label="Abrir navegación">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="offcanvas-lg offcanvas-end nav-offcanvas" tabindex="-1" id="mainNav" aria-labelledby="mainNavLabel">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="mainNavLabel">Miguel Vergara</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#mainNav" aria-label="Cerrar navegación"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#sobre-mi">Sobre mí</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="${siteRoot}index.html#proyectos" id="projectsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Proyectos</a>
+            <ul class="dropdown-menu portfolio-dropdown" aria-labelledby="projectsDropdown">
+              <li><a class="dropdown-item" href="${siteRoot}index.html#proyectos"><i class="bi bi-grid-1x2-fill"></i> Todos los proyectos</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="${siteRoot}proyectos/redisenio-sitio-corporativo.html"><i class="bi bi-window-sidebar"></i> Sitio corporativo</a></li>
+              <li><a class="dropdown-item" href="${siteRoot}proyectos/lanzamiento-producto-ia.html"><i class="bi bi-stars"></i> Producto IA</a></li>
+              <li><a class="dropdown-item" href="${siteRoot}proyectos/tienda-seraphia.html"><i class="bi bi-bag-check-fill"></i> Tienda Seraphia</a></li>
+              <li><a class="dropdown-item" href="${siteRoot}proyectos/contenido-visual-freelance.html"><i class="bi bi-camera-reels-fill"></i> Contenido visual</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#certificaciones">Certificaciones</a></li>
+          <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#enlaces">Enlaces</a></li>
+          <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#contacto">Contacto</a></li>
+        </ul>
+        <button class="theme-toggle ms-lg-3" id="themeToggle" type="button" aria-label="Cambiar modo de color">
+          <i class="bi bi-sun-fill"></i>
+          <span>Claro</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>`;
 
 function getThemeToggle() {
   return document.querySelector("#themeToggle");
@@ -115,27 +153,19 @@ function initProjectGallery() {
   });
 }
 
-async function loadNavbar() {
+function loadNavbar() {
   const slots = document.querySelectorAll("[data-navbar]");
   if (!slots.length) return;
 
-  try {
-    const response = await fetch(new URL("components/navbar.html", siteRoot));
-    if (!response.ok) throw new Error(`Navbar request failed: ${response.status}`);
-    const navbarHtml = (await response.text()).replaceAll("__ROOT__", siteRoot.href);
-    slots.forEach((slot) => {
-      slot.innerHTML = navbarHtml;
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  slots.forEach((slot) => {
+    slot.innerHTML = navbarTemplate;
+  });
 }
 
 applyTheme(storedTheme || (prefersDark ? "dark" : "light"));
 
-loadNavbar().then(() => {
-  initThemeToggle();
-  initNavbarInteractions();
-});
+loadNavbar();
+initThemeToggle();
+initNavbarInteractions();
 
 initProjectGallery();
