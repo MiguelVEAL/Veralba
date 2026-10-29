@@ -6,13 +6,13 @@ const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 const navbarTemplate = `
 <nav class="navbar navbar-expand-lg fixed-top portfolio-nav">
   <div class="container">
-    <a class="navbar-brand fw-black" href="${siteRoot}index.html#inicio">Miguel Vergara</a>
+    <a class="navbar-brand fw-black" href="${siteRoot}index.html#inicio">Veralba<span class="brand-dot">.</span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNav" aria-controls="mainNav" aria-label="Abrir navegación">
       <i class="bi bi-list"></i>
     </button>
     <div class="offcanvas-lg offcanvas-end nav-offcanvas" tabindex="-1" id="mainNav" aria-labelledby="mainNavLabel">
       <div class="offcanvas-header">
-        <h2 class="offcanvas-title" id="mainNavLabel">Miguel Vergara</h2>
+        <h2 class="offcanvas-title" id="mainNavLabel">Veralba</h2>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#mainNav" aria-label="Cerrar navegación"></button>
       </div>
       <div class="offcanvas-body">
@@ -23,14 +23,11 @@ const navbarTemplate = `
             <ul class="dropdown-menu portfolio-dropdown" aria-labelledby="projectsDropdown">
               <li><a class="dropdown-item" href="${siteRoot}index.html#proyectos"><i class="bi bi-grid-1x2-fill"></i> Todos los proyectos</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="${siteRoot}proyectos/redisenio-sitio-corporativo.html"><i class="bi bi-window-sidebar"></i> Sitio corporativo</a></li>
-              <li><a class="dropdown-item" href="${siteRoot}proyectos/lanzamiento-producto-ia.html"><i class="bi bi-stars"></i> Producto IA</a></li>
               <li><a class="dropdown-item" href="${siteRoot}proyectos/tienda-seraphia.html"><i class="bi bi-bag-check-fill"></i> Tienda Seraphia</a></li>
               <li><a class="dropdown-item" href="${siteRoot}proyectos/contenido-visual-freelance.html"><i class="bi bi-camera-reels-fill"></i> Contenido visual</a></li>
             </ul>
           </li>
           <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#certificaciones">Certificaciones</a></li>
-          <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#enlaces">Enlaces</a></li>
           <li class="nav-item"><a class="nav-link" href="${siteRoot}index.html#contacto">Contacto</a></li>
         </ul>
         <button class="theme-toggle ms-lg-3" id="themeToggle" type="button" aria-label="Cambiar modo de color">
@@ -162,10 +159,51 @@ function loadNavbar() {
   });
 }
 
+function initNavbarScroll() {
+  const nav = document.querySelector(".portfolio-nav");
+  if (!nav) return;
+
+  const update = () => nav.classList.toggle("is-scrolled", window.scrollY > 12);
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+}
+
+function initReveal() {
+  const items = document.querySelectorAll(".reveal");
+  if (!items.length) return;
+
+  if (!("IntersectionObserver" in window)) {
+    items.forEach((item) => item.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+  );
+
+  items.forEach((item, index) => {
+    // Small stagger for siblings inside the same parent.
+    const siblings = Array.from(item.parentElement?.children || []).filter((el) => el.classList.contains("reveal"));
+    const position = siblings.indexOf(item);
+    item.style.transitionDelay = `${Math.min(position, 5) * 80}ms`;
+    observer.observe(item);
+  });
+}
+
+root.classList.add("js");
 applyTheme(storedTheme || (prefersDark ? "dark" : "light"));
 
 loadNavbar();
 initThemeToggle();
 initNavbarInteractions();
+initNavbarScroll();
+initReveal();
 
 initProjectGallery();
